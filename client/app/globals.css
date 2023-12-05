@@ -1,0 +1,11 @@
+@import '~bootstrap/dist/css/bootstrap.css';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+@import '~react-toastify/dist/ReactToastify.css';
+
+body {
+     background: #f3f3f3;
+}
+
+.cursor-pointer {
+     cursor: pointer;
+}
