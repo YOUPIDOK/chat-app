@@ -1,6 +1,11 @@
 # Server
 > Node 20
 ## Installation
+**Create and config .env**
+```shell
+cp .env.example .env
+```
+**Install dependencies**
 ```bash
 pnpm install
 ```
