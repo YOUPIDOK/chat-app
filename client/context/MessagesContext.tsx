@@ -45,7 +45,7 @@ export const MessagesProvider: React.FC = ({ children }) => {
         });
         socket.on('event-message', (message) => {
             setMessages(messages => [...messages, message] as any);
-            if (message.clientId !== socket.id && username !== '') {
+            if (message.clientId !== socket.id) {
                 toast.info('Nouveau message');
             }
         });
