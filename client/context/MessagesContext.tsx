@@ -49,6 +49,10 @@ export const MessagesProvider: React.FC = ({ children }) => {
                 toast.info('Nouveau message');
             }
         });
+        socket.on('disconnect', () => {
+            setConnected(false);
+        });
+
     }, []);
 
     return (

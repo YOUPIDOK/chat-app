@@ -107,34 +107,38 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
   @SubscribeMessage('event-suggest')
   async handleSuggest(client: Socket): Promise<void | Error> {
-    const context = {
-      lastMessages: [],
-      clientId: client.id
-    };
+    let context = '';
 
-    this.messages.slice(-10).forEach(message => {
-      context.lastMessages.push({
-        clientId: message.clientId,
-        message: message.message,
-        timeSent: message.timeSent
-      })
-    });
+    if (this.messages.length === 0) {
+      context = 'Suggest a message to start a conversation in french.'
+    } else {
+      context = 'Last messages : \n';
+
+      this.messages.slice(-10).forEach(message => {
+        context += ` [${message.clientId}] sent at ${message.timeSent} : ${message.message} \n`;
+      });
+
+      context += `\nGenerate suggestion message for client [${client.id}]`;
+    }
+
+    console.log(context);
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
-          content: "Output JSON : {suggestion: string}.Based on the last messages key (lastMessages), generate the best next message to continue the conversation. I want no message repetition. If lastMessages is empty, suggest a message to start a new conversation like human in french. You must answer only the suggestion message and nothing else."
+          content: "You are a message suggestion assistant for a conversation. You always respond the suggestion in plain text."
         },
         {
           role: 'user',
-          content: JSON.stringify(context),
+          content: context,
         },
       ],
+      temperature: 0.01
     });
 
-    const suggestion = JSON.parse(response.choices[0].message.content).suggestion;
+    const suggestion = response.choices[0].message.content;
 
     console.log(`suggest "${suggestion}" to ${this.clients.find(c => c.client.id === client.id).username}`)
 
@@ -154,7 +158,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
       messages: [
         {
           role: 'system',
-          content: "Input : JSON {message: string}. Output : JSON {verified: bool}.checks whether the information in the message key is true and returns the completed JSON."
+          content: "Input : JSON {message: string}. Output : JSON {verified: bool}. Checks whether the information in the message key is true and returns the completed JSON."
         },
         {
           role: 'user',
